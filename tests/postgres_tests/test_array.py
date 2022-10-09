@@ -217,8 +217,10 @@ class TestQuerying(PostgreSQLTestCase):
                 NullableIntegerArrayModel(order=1, field=[1]),
                 NullableIntegerArrayModel(order=2, field=[2]),
                 NullableIntegerArrayModel(order=3, field=[2, 3]),
-                NullableIntegerArrayModel(order=4, field=[20, 30, 40]),
-                NullableIntegerArrayModel(order=5, field=None),
+                NullableIntegerArrayModel(order=4, field=[20, 30, 40],
+                                          field_nested=[[100, 200]]),
+                NullableIntegerArrayModel(order=5, field=None,
+                                          field_nested=[[None, None]]),
             ]
         )
 
@@ -239,6 +241,18 @@ class TestQuerying(PostgreSQLTestCase):
     def test_exact(self):
         self.assertSequenceEqual(
             NullableIntegerArrayModel.objects.filter(field__exact=[1]), self.objs[:1]
+        )
+
+    def test_exact_nested(self):
+        self.assertSequenceEqual(
+            NullableIntegerArrayModel.objects.filter(field_nested__exact=[[100, 200]]),
+            self.objs[3]
+        )
+
+    def test_exact_nested_null(self):
+        self.assertSequenceEqual(
+            NullableIntegerArrayModel.objects.filter(field_nested__exact=[[None, None]]),
+            self.objs[4]
         )
 
     def test_exact_with_expression(self):
